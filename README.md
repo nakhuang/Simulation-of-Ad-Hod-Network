@@ -118,5 +118,5 @@ This project is run on one of campus VMs (csgrads1.utdallas.edu) with platform c
     ``` text
     * 0 HELLO UNIDIR 1 2 BIDIR 3 4 MPR 5 6
     ```
--- Note that node 5 and 6 only appear in MPR (not in BIDIR).
--- From this message, we know that node 0 has bidirectional neighbors 3, 4, 5, and 6.
+- Note that node 5 and 6 only appear in MPR (not in BIDIR).
+- From this message, we know that node 0 has bidirectional neighbors 3, 4, 5, and 6.
