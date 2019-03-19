@@ -1,0 +1,11 @@
+node: main.o Node.o
+	g++ -o node main.o Node.o
+
+main.o: main.cpp Node.h
+	g++ -c main.cpp -DDEBUG
+
+Node.o: Node.cpp Node.h
+	g++ -c Node.cpp -DDEBUG
+
+clean:
+	rm node *.o

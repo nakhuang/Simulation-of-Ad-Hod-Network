@@ -1,0 +1,49 @@
+In order for you to get an idea of how the project works, consider  a small network consisting of five nodes, 0 , 1, 2, 3, 4, and 5, arranged in a circle (i.e. 0 and 1 are neighbors, 1 and 2 are neighbors etc and 5 and 0 are neighbors)
+
+Assume node 0 wants to send a data message to node 4
+
+Sometime later, the link between 4 and 5 dies
+
+Then, node 4 wants to send a data message to node 0
+
+We would do this in the following way. 
+
+Edit a file, called scenario.sh   (i.e. a scenario shell file) and add the following lines to it
+
+node 0 4 "A message from 0 to 4"   40   &
+node 1 1 &
+node 2 2 &
+node 3 3 &
+node 4 0 "Message from 4 to 0"  80 & 
+node 5  5  &
+controller & 
+
+Also, you need a topology.txt file with the following contents.
+
+0 UP 0 1 
+0 UP 1 0 
+0 UP 1 2 
+0 UP 2 1 
+0 UP 2 3 
+0 UP 3 2 
+0 UP 3 4 
+0 UP 4 3 
+0 UP 4 5 
+0 UP 5 4 
+0 UP 5 0
+0 UP 0 5
+50 DOWN 4 5 
+50 DOWN 5 4 
+
+Once you have these two files, you execute your project by typing the following at the unix prompt:
+
+bash scenario.sh 
+
+"bash" is a shell program that will read your commands in scenario.sh and execute them one by one. Since all the commands are simply to instantiate many copies of node (and one controller) and put them in the background, then this terminates quite quickly (less than 2 seconds I hope)
+
+You can then see that all your nodes are running in the background by typing the command
+
+jobs
+
+In about two minutes your nodes should terminate on their own, and you can examine the contents of all the fromX.txt and toX.txt files to see that messages were sent along the correct path, and the Xreceived.txt files (in particular 0received.txt and 4received.txt) to see that the data was sent successfully.
+

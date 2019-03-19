@@ -1,0 +1,11 @@
+controller: main.o Controller.o
+	g++ -o controller main.o Controller.o
+
+main.o: main.cpp Controller.h
+	g++ -c main.cpp -DDEBUG
+
+Controller.o: Controller.cpp Controller.h
+	g++ -c -std=c++11 Controller.cpp -DDEBUG
+
+clean:
+	rm controller *.o

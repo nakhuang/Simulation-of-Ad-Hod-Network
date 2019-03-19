@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="exporter-version" content="Evernote Mac 7.2.2 (456839)"/><meta name="created" content="2017-07-13 20:47:08 +0000"/><meta name="source" content="Clearly"/><meta name="source-url" content="https://elearning.utdallas.edu/bbcswebdav/pid-1565124-dt-content-rid-16289348_1/courses/2175-merged-CE63900U1-CS63900U1/CS%206390%20Summer%202017%20Project.html"/><meta name="updated" content="2017-07-28 02:47:11 +0000"/><title>Programming Project</title></head><body><div style="-evernote-webclip:true"><br/><div><div><div><div><h1>CS 6390 Summer 2017 Programming Project </h1><div><div/></div></div>
+
+<p>NOTE: there are always typos/omissions/inconsistencies, etc., and probably lots of them, so please help me
+find them. Also, please read it ASAP and start working on the code. 
+It may take longer than you think.</p>
+
+<p>NOTE: This is INDIVIDUAL work. People sharing code will be
+sent to the Dean of Students for disciplinary action.</p><p>NOTE: YOU CANNOT BORROW CODE FROM THE WEB. Any code has to be originally yours. </p>
+
+
+<h2>System/Language
+requirements</h2>
+
+<p>Your program can be written in any
+language that you wish, the only restriction is that it must run in the Unix machines here on campus (no, not on your laptop). Most,
+of course, prefer Java ad C++, but I have had projects turned in Perl and in
+Pascal (no kidding).<br/><br/>When you turn in your project, you can zip together all the source files. In
+addition, you should include a "README" file that contains:</p>
+
+<ol>
+ <li>The
+     name of the Unix machine you used to run your project</li>
+ <li>Compilation
+     instructions for your project (PRECISE compilation instructions, including
+     the compiler name and any flags as arguments to the compiler)</li>
+ <li>Obviously
+     your name and ID :)</li>
+</ol>
+
+<p>
+We will compile your source code and run it against our test cases.<br/><br/>The due date is to be determined, but it will be around one week before the
+final grades are due.</p>
+
+<h2>Overview</h2>
+
+<h3>Processes
+and arguments</h3>
+
+<p>We will simulate a very simple network by having a
+process correspond to a node in the network, and files correspond to channels
+in the network.</p>
+
+<p>We will have at most 10 nodes in the network,
+nodes 0, 1, 2, . . . , 9</p>
+
+<p>Each process is going to be given the following
+arguments</p>
+
+<ol>
+ <li>id
+     of this node (i.e., a number from 0 to 9) </li>
+ <li>the
+     destination id of a process to which the node should send data </li>
+ <li>a
+     string of arbitrary text that the node will send to the destination</li>
+ <li>the
+     time at which it should transfer the string to the destination  </li>
+</ol>
+
+<p>We will have a <b>single program</b> node.c (or whatever extension you want to use, node.cc,
+node.java, whatever) which has the code for a node. Since we have multiple
+nodes, we will run the same program multiple times, in <b>parallel</b>. The
+only difference between each of the copies of the program running in parallel
+is the arguments to the program.</p>
+
+<p>For example, assume I have two programs, A and B,
+and I want to run them at the same time. At the Unix
+prompt &gt;, I would type the following</p>
+
+<p>&gt; A &amp;</p>
+
+<p>&gt; B &amp;</p>
+
+<p>By typing the &amp; we
+are putting the program in the "background", i.e., the program runs
+in the background and you can keep typing things at the terminal. Therefore, A
+and B are running in parallel at the same time.</p>
+
+<p>Again, let “node” be your compiled program that
+represents a node. The arguments of the program are as follows</p>
+
+<p>node 3 5 "this is a message" 25 &amp;</p>
+
+<p>The following would execute the program node, and the
+first argument is the id of the node (3) the second is the destination for this
+node (5) the third is the message string "this is a message", and the
+fourth is the time at which the node begins attempting to transmit the string
+to the destination (i.e. after 25 seconds of execution). </p>
+
+<p>For example, assume I have a network with three
+nodes, 0 , 1, 2, and I want node 0 to send a string "this is a message
+from 0" to node 2 (starting at time 10), and node 1 to send a message
+"this is a message from 1" to node 2 (starting at time 20). Then I
+would execute the following commands at the Unix
+prompt &gt; (your prompt may be different)</p>
+
+<p>&gt; node 0 2 "this
+is a message from 0" 10 &amp;</p>
+
+<p>&gt; node 1 2 "this
+is a message from 1" 20 &amp;</p>
+
+<p>&gt; node 2 2 &amp;</p>
+
+<p>This will run three copies of node in the
+background, the only difference between them are the arguments each one has.</p>
+
+<p>For node 2, since the "destination" is 2 itself, this means 2 should not send a string to anyone.</p>
+
+<p>There will be a single additional process, called <b>controller</b>.
+The controller is needed because of the way that we handle I/O, as will
+be discussed below.</p>
+
+<p>All processes must be started at the same time.
+Since the above takes a while to type, you can write a small shell script to
+quickly spawn all the above processes. A sample shell script will be provided.</p>
+
+<h3>Communication Model
+and Files</h3>
+
+<p>We will model a wireless network (well, it is of
+course a far cry from a wireless network but nonetheless . . .
+). I will assume that when a node sends a message all of its neighbors
+are able to hear the message (since it is a broadcast medium).</p>
+
+<p>Each node with ID X will open two text files:
+toX.txt and fromX.txt. When X sends a message it <b><u>appends</u></b> it to
+fromX.txt (it does not overwrite any previous content of the file). Hence, at
+the end of the execution, fromX.txt contains all the messages sent by X. </p>
+
+<p><span style="">Messages are separated by a newline (to make
+viewing/parsing easier)</span></p>
+
+<p>A node is not aware of who its neighbors are. The
+“controller” is the process that is aware of the entire topology of the system.
+In real life the controller would not exist, but since we are using files
+rather than a real wireless network, the controller will act like the wireless
+network.</p>
+
+<p><span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;">If the controller knows there is a link from X to
+Y (i.e., X and Y are neighbors, WARNING, links can be one-directional) then
+when X appends a message to fromX.txt, the controller will read fromX.txt,
+notice the new message, and copy the message to the file toY.txt.</span></p>
+
+<p><span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;">Thus, node X receives in the file toX.txt a copy
+of every message sent by any of its neighbors.</span></p>
+
+<p>How does the controller know who is a neighbor of
+whom? Before the execution, you will create by hand a file called topology.txt.
+This file contains multiple lines, each line is of the
+following form.</p>
+
+<p>time status node1 node2 </p>
+
+<p>Each line corresponds to the “activation” or
+“deactivation” of the one-directional link (node1 à
+node2). For example, if 10 seconds after the system begins to execute node X
+and Y become close to each other (and become bidirectional neighbors) then the
+topology.txt file will have the following lines (among others)</p>
+
+<p>10 UP X Y <br/>
+10 UP Y X</p>
+
+<p>Where X and Y are numbers in the range 0 .. 9 (i.e. node ID’s)</p>
+
+<p>If at time 20 X and Y become far away from each
+other then topology.txt will have the following lines (again, among others)</p>
+
+<p>20 DOWN X Y<br/>
+20 DOWN Y X</p>
+
+<p>You can assume the entries in topology.txt are
+sorted by time. Also, it is possible that the link from X to Y remains up while
+the link from Y to X goes down.</p>
+
+<p><span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;"><b>ONCE EVERY SECOND,  the</b> controller will read <b>ALL </b>fromX.txt files (for every
+X 0 .. 9) to check if there are new messages sent, and if so the messages are
+forwarded to the appropriate toX.txt files.</span></p>
+
+<p><span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;"><b>ONCE EVERY SECOND</b> each node X will read the toX.txt file to see if there are
+any new messages to process.</span></p>
+
+<h1>Routing</h1>
+
+<p>Routing of messages from one node to another will
+be performed using the <span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;">OLSR protocol</span>. I will not include all details here since
+you know how OLSR behaves, but I will provide some of the highlights.</p>
+
+<p>There will be three types of messages:</p>
+
+<p>HELLO - These messages are the hello messages exchanged between neighbors</p>
+
+<p>TC - These are the topology control messages that are flooded throughout the network</p>
+
+<p>DATA - These are data messages that are  sent from a source to a destination.</p>
+
+<p><span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;">When a message is written into the
+file fromX.txt by node X, they are preceded by the node id of the next-hop node
+that should receive this message.</span></p>
+
+<p>E.g., consider DATA messages, they are of the form</p>
+
+<p>&lt;nxthop&gt; 
+&lt;fromnbr&gt; DATA &lt;srcnode&gt;
+&lt;dstnode&gt; &lt;string&gt;</p>
+
+<p>One example of a data message would be</p>
+
+<p>2 1 DATA 0 3 This is a
+message</p>
+
+<p>This message is being sent from node 1 to node 2
+(i.e. along the link 1 -- 2), and it is a data message which originated at node 0
+and whose ultimate destination is node 3. The data in the message is “This is a
+message”.</p>The
+other two type of messages, HELLO and TC, are always sent to all
+neighbors, rather than a specific neighbor. In this case, we will use
+'*' to denote all neighbors, as indicated later below.
+<h2>Creating and Routing Data Messages.<br/>
+</h2>
+<h3>Creating data messages.<br/>
+</h3>
+
+
+<p>After the appropriate number of seconds
+(i.e., the last argument of the program) have elapsed since the
+beginning of the execution, then the node attempts to send the string to the
+destination.</p>
+
+<p>Each node maintains a <span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;">routing table</span> and a <span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;">topology
+table </span>as described in the slides. At all times, the routing table is
+maintained current with respect to the topology table. I.e., whenever
+the topology table changes the node recalculates all the entries in its
+routing table.</p><p>If the node has an entry in its routing table for
+the destination, then it creates the data message and sends it to the
+next hop to the destination, as indicated in its routing table. (i.e.
+it puts the string in the data
+message and sends it to the next hop).</p>
+
+
+<p>If an entry is not found in the routing table, the node
+waits for 30 seconds, and then it tries again. It keeps trying every 30
+seconds until it finds an entry in the routing table. Once the data
+message is succesfully created and sent, it is not created again, i.e.,
+we will only send the string of text once to the destination.</p>
+<p>If node X receives a data message that has been addressed to
+it (i.e., X is the destination) then X appends the string in the data message to the
+file Xreceived.txt. I.e., this file will have all the data strings that X
+received during its execution.</p>
+
+
+<h3>Routing of data messages</h3>
+Nothing interesting here. <span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;">When a node receives a data message, and it
+is not the destination, it has to forward it according to its routing
+table. If it does have an entry in its routing table for the
+destination it forwards the message accordingly. If  it does not
+have an entry in its routing table for the destination,  it just
+drops the message.</span><h2>Hello Message Creation and Processing</h2>
+A HELLO message has the following format<br/><br/>* 
+&lt;node&gt; HELLO UNIDIR &lt;neighbor&gt; ... &lt;neighbor&gt;   BIDIR &lt;neighbor&gt; ... &lt;neighbor&gt;   MPR &lt;neighbor&gt; ... &lt;neighbor&gt;<br/><br/>&lt;node&gt; is the id of the node that is sending the hello message.<br/><br/>* indicates that this message will be sent to all neighbors of
+&lt;node&gt;, i.e., the controller will forward a copy of this message
+to all neighbors of &lt;node&gt; <br/><br/>UNIDIR is a list of neighbors that the node thinks (so far) there is only a one-directional link to the neighbor<br/><br/>BIDIR is a list of neighbors that the node has confirmed that it has a bidirectional link with each of the neighbors.<br/><br/>MPR is a list of neighbors that the node has chosen as multipoint relays.<br/><br/>Each node sends a hello message every 5 seconds.<br/><br/><span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;">The MPRs are selected using the basic OLSR greedy strategy: select
+first the neighbor that can reach the largest number of two hop
+neighbors, then the next neighbor that can select the most remaining
+two-hop neighbors, etc, as described in class. </span><br/><br/>If a node does not receive a hello message from one of its neighbors in
+15 seconds, it assume the neighbor is dead or has moved away, so it
+removes it from its list of neighbors.<h2>TC  Message Creation and Processing</h2>The format of a TC message is as follows.<br/><br/>* &lt;fromnbr&gt; TC &lt;srcnode&gt; &lt;seqno&gt; MS &lt;msnode&gt; ... &lt;msnode&gt; <br/><br/>Recall that TC messages are flooded throughout the entire network.
+Thus,  &lt;fromnbr&gt; is the node transmitting this particular
+copy of the message, which will be received by all neighbors of this
+node. The originator of the TC message is the  node
+&lt;srcnode&gt;. The &lt;seqno&gt; is the sequence number of the srcnode of the TC
+message  (recall that<span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;"> each node when it creates a TC message it
+increases its local sequence number and places it in the TC message it
+creates</span>). MS is a sequence of MPR selectors of the node &lt;srcnode&gt;<br/><br/>Each node maintains a topology table and a routing table as described in the slides.<br/><br/>TC messages are flooded as described in the slides. I.e., when a
+neighbor x of &lt;fromnbr&gt; receives the above message, it will
+forward it to all its neighbors if x is an MPR of &lt;fromnbr&gt;. When
+x retransmits the message, it of course updates &lt;fromnbr&gt; to be
+itself.<br/><br/>The sequence number determines whether the information is old or new.
+I.e., <span style="background-color: rgb(255, 250, 165);-evernote-highlight:true;">if you have information from &lt;srcnode&gt; whose sequence
+number is smaller than that of this message, then you throw the old
+information away (if different) and keep the new one with larger
+sequence number. If the information in the message has a smaller
+sequence number than what you have seen before from &lt;srcndoe&gt; you
+just throw the message away. If you receive the same information but
+with a larger sequence number, you refresh the timeout period of the
+information</span> (see below)<br/><br/>Every node with a non-empty MS sets creates and floods a TC message every 10 seconds.<br/><br/>If you do not receive a TC message from a node during a period of 45
+seconds you remove all TC information that you received from that node.<h1>Program Skeleton</h1>
+
+<p>You can write your
+“node” program with an overall general
+structure as follows (of course details have to be added by you, and I
+don't claim that the below structure is complete). You can
+figure out the controller on your own.</p>
+
+<p>main()</p>
+
+<p> 
+initialize variables</p>
+
+<p> 
+open fromX.txt for appending, toX.txt for reading,</p>
+
+<p>      
+and Xreceived for appending.
+</p>
+
+<p> 
+i = 0</p>
+
+<p> 
+while (i &lt; 120)</p>
+
+<p>    
+read toX.txt</p>
+
+<p>    
+process any new received messages  (i.e.  DATA, HELLO, TC)</p>
+
+<p>    
+if it is time to send the data string</p>
+
+<p>if there is a routing table
+entry for the destination</p>
+
+<p>   send the data message</p>
+
+
+
+
+<p>    
+if i is a multiple of 5 send a hello message</p>
+<p>     if i is a multiple of 10 send a TC message</p>
+<p>     remove old entries of the neighbor table if necessary</p>
+<p>     remove old entries from the TC table if necessary</p>
+<p>     recalculate the routing table if necessary</p>
+<p>     i = i + 1;</p>
+
+
+<p>    
+sleep for 1 second.</p>
+
+<p> 
+end while</p>
+
+<p> 
+close files</p>
+
+<p> 
+end program</p>
+
+<h1>General Remarks</h1>
+
+<p><b>DO NOT RUN YOUR PROGRAM WITHOUT THE SLEEP
+COMMAND.</b> Otherwise you would use too much
+CPU time and administrators are going to get upset with you and with me!</p>
+
+<p><b><u>Notice that your process will finish within
+120 seconds (or about) after you started it.</u></b></p>
+
+<p>Note that you have to run multiple
+processes in the background. The minimum are two processes that are neighbors
+of each other, of course.<br/><br/>After each "run", you will have to delete the channel and output
+files by hand (otherwise their contents would be used in the next run, which of
+course is incorrect).<br/><br/>Also, after each run, <b>you should always check that you did not leave any
+unwanted processes running, especially after you log out !!!</b>
+To find out which processes you have running, type </p>
+
+<p>ps -ef | grep
+userid</p>
+
+<p>where userid is your Unix login id. (mine is jcobb). That will give you
+a list of processes with the process identifier (the process id is the large
+number after your user id in the listing)</p>
+
+<p>To kill a process type the following</p>
+
+<p>kill -9 processid</p>
+
+<p>I will give you soon a little writeup
+on Unix (how to compile, etc) and account information.
+However, you should have enough info by now to start working on the design of
+the code</p>
+
+<p>Good luck</p>
+
+</div></div></div><br/></div><div><br/></div></body></html>
