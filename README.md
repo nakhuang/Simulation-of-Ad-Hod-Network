@@ -1,4 +1,6 @@
-# README file of ACN Project
+# ACN Final Project
+
+It is an academic project for CS6390 Advanced Computer Networks taught by Jorge A. Cobb (Summer 2017). The goal is to simulate a simple Ad Hoc network and implement OLSR protocol. See [requirements.html](https://github.com/nakhuang/Simulation-of-Ad-Hod-Network/blob/master/requirements.html), [Project_scenarios.pdf](https://github.com/nakhuang/Simulation-of-Ad-Hod-Network/blob/master/Project_scenarios.pdf) and [SampleScenario.txt](https://github.com/nakhuang/Simulation-of-Ad-Hod-Network/blob/master/SampleScenario.txt)for further details.
 
 ## UNIX Machine Uesd to Run the Project 
 
